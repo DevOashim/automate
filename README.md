@@ -7,6 +7,12 @@ Laravel Automation Steps - Automate your Laravel project setup with simple butto
 composer require devoashim/automate
 ```
 
+## Uninstallation
+```bash
+composer remove devoashim/automate
+```
+
+
 ## Usage
 
 After installation, visit:
@@ -19,7 +25,7 @@ Click the buttons to run Laravel commands automatically!
 ## Requirements
 
 - PHP ^8.2
-- Laravel ^10.0
+- Laravel ^10.0|^11.0|^12.0
 
 ## License
 

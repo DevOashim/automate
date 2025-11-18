@@ -1,18 +1,16 @@
 <?php
 
-namespace DevOashim\Automate\src\Controllers;
+namespace DevOashim\Automate\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
-
-
-
 class AutomateController extends Controller
 {
     public $page_header_title = 'h2';
+
     public $allowCurrent = false;
 
     public function htmlToBlade(Request $request)
@@ -31,7 +29,8 @@ class AutomateController extends Controller
                 '/href="([^"]+\.html)"/i',
                 function ($matches) {
                     $filename = pathinfo($matches[1], PATHINFO_FILENAME);
-                    return 'href="{{ route(\'' . $filename . '\') }}"';
+
+                    return 'href="{{ route(\''.$filename.'\') }}"';
                 },
                 $htmlContent
             );
@@ -39,46 +38,46 @@ class AutomateController extends Controller
             // Replace src="assets/..."
             $htmlContent = preg_replace_callback(
                 '/src="(assets\/[^"]+)"/i',
-                fn($matches) => 'src="{{ asset(\'' . $matches[1] . '\') }}"',
+                fn ($matches) => 'src="{{ asset(\''.$matches[1].'\') }}"',
                 $htmlContent
             );
 
             // Replace url(assets/...)
             $htmlContent = preg_replace_callback(
                 '/url\((["\']?)(assets\/[^)\'"]+)\1\)/i',
-                fn($matches) => "url({{ asset('{$matches[2]}') }})",
+                fn ($matches) => "url({{ asset('{$matches[2]}') }})",
                 $htmlContent
             );
 
             // Replace href="assets/*.css"
             $htmlContent = preg_replace_callback(
                 '/href="(assets\/[^"]+\.css)"/i',
-                fn($matches) => 'href="{{ asset(\'' . $matches[1] . '\') }}"',
+                fn ($matches) => 'href="{{ asset(\''.$matches[1].'\') }}"',
                 $htmlContent
             );
 
             // Replace href="assets/*.png"
             $htmlContent = preg_replace_callback(
                 '/href="(assets\/[^"]+\.png)"/i',
-                fn($matches) => 'href="{{ asset(\'' . $matches[1] . '\') }}"',
+                fn ($matches) => 'href="{{ asset(\''.$matches[1].'\') }}"',
                 $htmlContent
             );
             // Replace href="assets/*.img"
             $htmlContent = preg_replace_callback(
                 '/href="(assets\/[^"]+\.img)"/i',
-                fn($matches) => 'href="{{ asset(\'' . $matches[1] . '\') }}"',
+                fn ($matches) => 'href="{{ asset(\''.$matches[1].'\') }}"',
                 $htmlContent
             );
             // Replace href="assets/*.jpg"
             $htmlContent = preg_replace_callback(
                 '/href="(assets\/[^"]+\.jpg)"/i',
-                fn($matches) => 'href="{{ asset(\'' . $matches[1] . '\') }}"',
+                fn ($matches) => 'href="{{ asset(\''.$matches[1].'\') }}"',
                 $htmlContent
             );
             // Replace href="assets/*.jpeg"
             $htmlContent = preg_replace_callback(
                 '/href="(assets\/[^"]+\.jpeg)"/i',
-                fn($matches) => 'href="{{ asset(\'' . $matches[1] . '\') }}"',
+                fn ($matches) => 'href="{{ asset(\''.$matches[1].'\') }}"',
                 $htmlContent
             );
             // action="something.html" → action="{{ route('something') }}"
@@ -86,7 +85,8 @@ class AutomateController extends Controller
                 '/action="([^"]+\.html)"/i',
                 function ($matches) {
                     $filename = pathinfo($matches[1], PATHINFO_FILENAME);
-                    return 'action="{{ route(\'' . $filename . '\') }}"';
+
+                    return 'action="{{ route(\''.$filename.'\') }}"';
                 },
                 $htmlContent
             );
@@ -94,7 +94,7 @@ class AutomateController extends Controller
             $htmlContent = preg_replace_callback(
                 '/href="(assets\/[^"]+\.webmanifest)"/i',
                 function ($matches) {
-                    return 'href="{{ asset(\'' . $matches[1] . '\') }}"';
+                    return 'href="{{ asset(\''.$matches[1].'\') }}"';
                 },
                 $htmlContent
             );
@@ -102,6 +102,7 @@ class AutomateController extends Controller
                 '/<title>(.*?)<\/title>/i',
                 function ($matches) {
                     $updated = preg_replace('/html\s*5?/i', 'Laravel ', $matches[1]);
+
                     return "<title>$updated</title>";
                 },
                 $htmlContent
@@ -110,7 +111,8 @@ class AutomateController extends Controller
                 '/<meta\s+name="description"\s+content="([^"]*)"/i',
                 function ($matches) {
                     $updated = preg_replace('/html\s*5?/i', 'Laravel ', $matches[1]);
-                    return '<meta name="description" content="' . $updated . '"';
+
+                    return '<meta name="description" content="'.$updated.'"';
                 },
                 $htmlContent
             );
@@ -119,23 +121,21 @@ class AutomateController extends Controller
             $filenameOnly = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $bladePath = resource_path("views/htmlToBlade/{$filenameOnly}.blade.php");
 
-            if (!file_exists(dirname($bladePath))) {
+            if (! file_exists(dirname($bladePath))) {
                 mkdir(dirname($bladePath), 0755, true);
             }
 
             file_put_contents($bladePath, $htmlContent);
             $savedFiles[] = "{$filenameOnly}.blade.php";
         }
-
-        // Return success message with file names
-
-        //$msg = count($savedFiles) . "টি ফাইল সফলভাবে সেভ হয়েছে 💛💛" . implode(', ', $savedFiles);
-
         // Return success message without file names
-        $msg = count($savedFiles) . " files saved successfully 💛💛";
+        $msg = count($savedFiles).' files saved successfully 💛💛';
 
-        return back()->with(['msg' => $msg, 'type' => 'success']);
+        return view('auto::automate.html-to-blade', [
+            'success' => $msg,
+        ]);
     }
+
     public function bladeToRoute(Request $request)
     {
         $request->validate([
@@ -149,7 +149,7 @@ class AutomateController extends Controller
 
             preg_match_all("/href\s*=\s*\"{{\s*route\(\s*'([^']+)'\s*\)\s*}}\"/", $content, $matches);
 
-            if (!empty($matches[1])) {
+            if (! empty($matches[1])) {
                 $allRoutes = array_merge($allRoutes, $matches[1]);
             }
         }
@@ -170,7 +170,7 @@ class AutomateController extends Controller
             $usedControllers[] = $controller;
 
             $method = str_replace('-', '_', $route);
-            $view = ($isHome ? 'home' : 'pages') . '.' . $route;
+            $view = ($isHome ? 'home' : 'pages').'.'.$route;
 
             // Route definition
             $routeDefinitions[] = "Route::get('/$route', [$controller::class, '$method'])\n    ->name('$route');";
@@ -180,7 +180,7 @@ class AutomateController extends Controller
                 "    public function $method()\n    {\n        return view('$view');\n    }";
         }
 
-        $useStatements = array_unique(array_map(fn($ctrl) => "use App\\Http\\Controllers\\$ctrl;", array_unique($usedControllers)));
+        $useStatements = array_unique(array_map(fn ($ctrl) => "use App\\Http\\Controllers\\$ctrl;", array_unique($usedControllers)));
 
         return view('auto::automate.uploadBlade', [
             'routeDefinitions' => $routeDefinitions,
@@ -188,12 +188,13 @@ class AutomateController extends Controller
             'methodSnippets' => $methodSnippets,
         ]);
     }
+
     public function bladeToRouteAuto()
     {
         $path = resource_path('views/components/menuList.blade.php');
 
-        if (!File::exists($path)) {
-            return redirect()->back()->with('error', 'menuList.blade.php not found!');
+        if (! File::exists($path)) {
+            return view('auto::automate.lookUp', ['error' => 'menuList.blade.php not found!']);
         }
 
         $content = File::get($path);
@@ -202,7 +203,7 @@ class AutomateController extends Controller
         $uniqueRoutes = array_values(array_unique($matches[1]));
 
         if (empty($uniqueRoutes)) {
-            return redirect()->back()->with('error', 'No routes found in menuList.blade.php!');
+            return view('auto::automate.lookUp', ['error' => 'No routes found in menuList.blade.php!']);
         }
 
         $webRoutes = base_path('routes/web.php');
@@ -210,11 +211,11 @@ class AutomateController extends Controller
         $controllerBasePath = app_path('Http/Controllers');
 
         // Ensure "<?php\n\nuse Illuminate\Support\Facades\Route;" exists
-        if (!Str::startsWith($webFileContent, "<?php")) {
-            $webFileContent = "<?php\n\n" . $webFileContent;
+        if (! Str::startsWith($webFileContent, '<?php')) {
+            $webFileContent = "<?php\n\n".$webFileContent;
         }
 
-        if (!Str::contains($webFileContent, "use Illuminate\\Support\\Facades\\Route;")) {
+        if (! Str::contains($webFileContent, 'use Illuminate\\Support\\Facades\\Route;')) {
             $webFileContent = preg_replace(
                 '/<\?php\s*/',
                 "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n",
@@ -226,12 +227,18 @@ class AutomateController extends Controller
         foreach ($uniqueRoutes as $route) {
             $isHome = Str::contains($route, 'index');
             $controllerName = $isHome ? 'HomeController' : 'PagesController';
+
             $methodName = Str::replace('-', '_', $route);
-            $viewPath = ($isHome ? 'home' : 'pages') . '.' . $route;
+
+            if ($methodName === '404') {
+                $methodName = 'not_found';
+            }
+
+            $viewPath = ($isHome ? 'home' : 'pages').'.'.$route;
 
             // Add controller use statement if missing
             $useStatement = "use App\\Http\\Controllers\\$controllerName;\n";
-            if (!Str::contains($webFileContent, $useStatement)) {
+            if (! Str::contains($webFileContent, $useStatement)) {
                 $webFileContent = preg_replace(
                     '/use Illuminate\\\\Support\\\\Facades\\\\Route;\s*/i',
                     "use Illuminate\\Support\\Facades\\Route;\n$useStatement",
@@ -240,16 +247,20 @@ class AutomateController extends Controller
                 );
             }
 
+
+            //index route url only '/' 
+            $routeUrl = $route === 'index' ? '' : $route;
+
             // Add route definition if missing
-            $routeSnippet = "Route::get('/$route', [{$controllerName}::class, '$methodName'])\n    ->name('$route');";
-            if (!Str::contains($webFileContent, "->name('$route');")) {
-                $webFileContent .= "\n\n" . $routeSnippet;
+            $routeSnippet = "Route::get('/$routeUrl', [{$controllerName}::class, '$methodName'])\n    ->name('$route');";
+            if (! Str::contains($webFileContent, "->name('$route');")) {
+                $webFileContent .= "\n\n".$routeSnippet;
             }
 
             // Create or update Controller
-            $controllerPath = $controllerBasePath . "/$controllerName.php";
+            $controllerPath = $controllerBasePath."/$controllerName.php";
 
-            if (!File::exists($controllerPath)) {
+            if (! File::exists($controllerPath)) {
                 File::put($controllerPath, <<<PHP
 <?php
 
@@ -266,23 +277,28 @@ class $controllerName extends Controller
 PHP);
             } else {
                 $controllerContent = File::get($controllerPath);
-                if (!Str::contains($controllerContent, "function $methodName(")) {
+                if (! Str::contains($controllerContent, "function $methodName(")) {
                     $methodCode = <<<PHP
 
     public function $methodName(){
         return view('$viewPath');
     }
 PHP;
-                    $controllerContent = preg_replace('/}\s*$/', $methodCode . "\n}", $controllerContent);
+                    $controllerContent = preg_replace('/}\s*$/', $methodCode."\n}", $controllerContent);
                     File::put($controllerPath, $controllerContent);
                 }
             }
         }
 
+        $routeSnippet = "Route::fallback(function () {\n    return view('pages.404');\n});";
+
+        $webFileContent .= "\n\n".$routeSnippet;
+
         File::put($webRoutes, $webFileContent);
 
-        return redirect()->back()->with('success', 'Route and Controller Created 😊');
+        return view('auto::automate.lookUp', ['success' => 'Route and Controller Created 😊']);
     }
+
     public function scanAndCreateViews()
     {
         $controllersPath = app_path('Http/Controllers');
@@ -308,32 +324,30 @@ PHP;
             $baseScriptsAssets = array_unique($baseMatchesJs[1]);
         }
 
-
-
-
         foreach ($controllerFiles as $file) {
-            if (in_array($file->getFilename(), $excludedFiles))
+            if (in_array($file->getFilename(), $excludedFiles)) {
                 continue;
+            }
 
             $code = File::get($file->getRealPath());
             preg_match_all('/return\s+view\s*\(\s*[\'"]([^\'"]+)[\'"]\s*\)/', $code, $matches);
 
             foreach ($matches[1] as $viewPath) {
-                $bladePath = resource_path('views/' . str_replace('.', '/', $viewPath) . '.blade.php');
+                $bladePath = resource_path('views/'.str_replace('.', '/', $viewPath).'.blade.php');
 
-                if (!file_exists($bladePath)) {
+                if (! file_exists($bladePath)) {
                     $dir = dirname($bladePath);
-                    if (!is_dir($dir))
+                    if (! is_dir($dir)) {
                         File::makeDirectory($dir, 0755, true);
+                    }
 
-                    $fileName = last(explode('.', $viewPath)) . '.blade.php';
-                    $sourceFile = resource_path('views/htmlToBlade/' . $fileName);
-                    if (!file_exists($sourceFile))
+                    $fileName = last(explode('.', $viewPath)).'.blade.php';
+                    $sourceFile = resource_path('views/htmlToBlade/'.$fileName);
+                    if (! file_exists($sourceFile)) {
                         continue;
+                    }
 
                     $htmlContent = File::get($sourceFile);
-
-
 
                     // ✅ STEP 2: HTML ফাইলের head tag থেকে CSS asset গুলো বের করো
                     $fileCssAssets = [];
@@ -347,7 +361,7 @@ PHP;
                     // $uniqueCssAssets = array_diff($fileCssAssets, $baseCssAssets);
                     $uniqueCssAssets = [];
                     foreach ($fileCssAssets as $fileCssAsset) {
-                        if (!in_array($fileCssAsset, $baseCssAssets)) {
+                        if (! in_array($fileCssAsset, $baseCssAssets)) {
                             $uniqueCssAssets[] = $fileCssAsset;
                         }
 
@@ -355,9 +369,8 @@ PHP;
 
                     $cssLinks = '';
                     foreach ($uniqueCssAssets as $cssPath) {
-                        $cssLinks .= '<link rel="stylesheet" href="{{ asset(\'' . $cssPath . '\') }}">' . "\n";
+                        $cssLinks .= '<link rel="stylesheet" href="{{ asset(\''.$cssPath.'\') }}">'."\n";
                     }
-
 
                     // ✅ STEP 2: HTML ফাইলের head tag থেকে js asset গুলো বের করো
                     $fileJsAssets = [];
@@ -370,7 +383,7 @@ PHP;
                     // ✅ STEP 3: নতুন লিংকগুলো খুঁজে বের করা যেগুলো base এ নাই
                     $uniqueJsAssets = [];
                     foreach ($fileJsAssets as $fileJsAsset) {
-                        if (!in_array($fileJsAsset, $baseScriptsAssets)) {
+                        if (! in_array($fileJsAsset, $baseScriptsAssets)) {
                             $uniqueJsAssets[] = $fileJsAsset;
                         }
 
@@ -378,10 +391,8 @@ PHP;
 
                     $JsLinks = '';
                     foreach ($uniqueJsAssets as $jsPath) {
-                        $JsLinks .= '<script src="{{ asset(\'' . $jsPath . '\') }}"></script>' . "\n";
+                        $JsLinks .= '<script src="{{ asset(\''.$jsPath.'\') }}"></script>'."\n";
                     }
-
-
 
                     // Blade ডিরেক্টিভ গুলা এনকোড করে ফেলো
                     $htmlContent = str_replace(
@@ -402,7 +413,7 @@ PHP;
                     if (str_starts_with($viewPath, 'pages.')) {
                         if (preg_match('/<section[^>]*class="[^"]*page-header[^"]*"[^>]*>(.*?)<\/section>/si', $htmlContent, $sectionMatch)) {
                             $headerSection = $sectionMatch[1];
-                            $pattern = '/<'.$this->page_header_title.'[^>]*>(.*?)<\/' . $this->page_header_title . '>/si';
+                            $pattern = '/<'.$this->page_header_title.'[^>]*>(.*?)<\/'.$this->page_header_title.'>/si';
                             preg_match($pattern, $headerSection, $h2Match);
                             $headerTitle = trim(strip_tags($h2Match[1] ?? ''));
                             preg_match_all('/<li[^>]*>(.*?)<\/li>/si', $headerSection, $liMatches);
@@ -428,17 +439,17 @@ PHP;
                             $middleContent
                         );
                         $middleContent = urldecode(html_entity_decode($middleContent));
-                        if (!empty($cssLinks)) {
-                            $pushCss = 
+                        if (! empty($cssLinks)) {
+                            $pushCss =
 "@push('styles') 
     \n$cssLinks 
 @endpush";
                         } else {
                             $pushCss = '';
                         }
-                        if (!empty($JsLinks)) {
-$pushJs = 
-"@push('scripts') 
+                        if (! empty($JsLinks)) {
+                            $pushJs =
+                            "@push('scripts') 
    \n$JsLinks 
 @endpush";
                         } else {
@@ -459,12 +470,13 @@ $middleContent
 BLADE;
                     } elseif (str_starts_with($viewPath, 'home.')) {
                         libxml_use_internal_errors(true);
-                        $dom = new \DOMDocument();
+                        $dom = new \DOMDocument;
                         $dom->loadHTML($htmlContent);
                         $xpath = new \DOMXPath($dom);
                         $nodes = $xpath->query('//*[contains(@class, "stricky-header")]');
-                        if ($nodes->length === 0)
+                        if ($nodes->length === 0) {
                             $nodes = $xpath->query('//header');
+                        }
 
                         if ($nodes->length > 0) {
                             $node = $nodes->item(0);
@@ -472,9 +484,10 @@ BLADE;
 
                             while ($sibling) {
                                 if ($sibling->nodeType === XML_ELEMENT_NODE) {
-                                    $classAttr = $sibling->attributes?->getNamedItem("class")?->nodeValue ?? '';
-                                    if (preg_match('/newsletter|footer/i', $classAttr))
+                                    $classAttr = $sibling->attributes?->getNamedItem('class')?->nodeValue ?? '';
+                                    if (preg_match('/newsletter|footer/i', $classAttr)) {
                                         break;
+                                    }
                                 }
                                 $middleContent .= $dom->saveHTML($sibling);
                                 $sibling = $sibling->nextSibling;
@@ -487,16 +500,16 @@ BLADE;
                             $middleContent
                         );
                         $middleContent = urldecode(html_entity_decode($middleContent));
-                        if (!empty($cssLinks)) {
-                            $pushCss = 
+                        if (! empty($cssLinks)) {
+                            $pushCss =
 "@push('styles')  
    \n$cssLinks 
 @endpush";
                         } else {
                             $pushCss = '';
                         }
-                        if (!empty($JsLinks)) {
-                            $pushJs = 
+                        if (! empty($JsLinks)) {
+                            $pushJs =
 "@push('scripts') 
    \n$JsLinks 
 @endpush";
@@ -522,7 +535,8 @@ BLADE;
             }
         }
 
-        return back()->with('success', "$bladeFilesCreated Blade files generated successfully 😊");
+        return view('auto::automate.lookUp', ['success' => "$bladeFilesCreated Blade files generated successfully 😊"]);
+
     }
 
     public function extractAndGenerateMenuList(): bool
@@ -532,13 +546,14 @@ BLADE;
 
         // Create components directory if it doesn't exist
         $componentsDir = dirname($outputPath);
-        if (!File::exists($componentsDir)) {
+        if (! File::exists($componentsDir)) {
             File::makeDirectory($componentsDir, 0755, true);
         }
 
         // If input file doesn't exist, create an empty output file and return false
-        if (!File::exists($inputPath)) {
+        if (! File::exists($inputPath)) {
             File::put($outputPath, '<!-- Menu list will be generated here -->');
+
             return false;
         }
 
@@ -547,8 +562,8 @@ BLADE;
         libxml_use_internal_errors(true);
 
         // Blade কোড সঠিক রাখতে xml header সহ HTML লোড
-        $dom = new \DOMDocument();
-        $dom->loadHTML('<?xml encoding="utf-8" ?><div>' . $html . '</div>');
+        $dom = new \DOMDocument;
+        $dom->loadHTML('<?xml encoding="utf-8" ?><div>'.$html.'</div>');
         $xpath = new \DOMXPath($dom);
 
         // main-menu__list ul খোঁজা হচ্ছে
@@ -557,15 +572,17 @@ BLADE;
         if ($ulNodes->length === 0) {
             // Create empty output file if no UL found
             File::put($outputPath, '<!-- No menu list found in source file -->');
+
             return false;
         }
 
         $ul = $ulNodes[0];
-        $newUl = '<ul class="main-menu__list">' . PHP_EOL;
+        $newUl = '<ul class="main-menu__list">'.PHP_EOL;
 
         foreach ($ul->childNodes as $li) {
-            if ($li->nodeType !== XML_ELEMENT_NODE || $li->nodeName !== 'li')
+            if ($li->nodeType !== XML_ELEMENT_NODE || $li->nodeName !== 'li') {
                 continue;
+            }
 
             $liHtml = $dom->saveHTML($li);
 
@@ -577,11 +594,11 @@ BLADE;
             preg_match_all('/route\(\'([^)]+)\'\)/', $liHtml, $matches);
 
             if ($this->allowCurrent) {
-                 $routes = $matches[1];
+                $routes = $matches[1];
             } else {
-               $routes = [];  
+                $routes = [];
             }
-            
+
             if (count($routes)) {
                 $routeList = implode("','", $routes);
                 $isDropdown = strpos($liHtml, '<ul') !== false;
@@ -593,7 +610,8 @@ BLADE;
                         function ($match) use ($routeList) {
                             $existingClasses = preg_replace('/\bcurrent\b/', '', trim($match[2]));
                             $existingClasses = trim(preg_replace('/\s+/', ' ', $existingClasses));
-                            return '<li' . $match[1] . 'class="' . $existingClasses . ' @if (request()->is([\'' . $routeList . '\'])) current @endif"' . $match[3] . '>';
+
+                            return '<li'.$match[1].'class="'.$existingClasses.' @if (request()->is([\''.$routeList.'\'])) current @endif"'.$match[3].'>';
                         },
                         $liHtml
                     );
@@ -602,7 +620,7 @@ BLADE;
                     if ($modifiedLi === $liHtml) {
                         $modifiedLi = preg_replace(
                             '/<li([^>]*)>/i',
-                            '<li class="dropdown @if (request()->is([\'' . $routeList . '\'])) current @endif">',
+                            '<li class="dropdown @if (request()->is([\''.$routeList.'\'])) current @endif">',
                             $liHtml
                         );
                     }
@@ -613,7 +631,8 @@ BLADE;
                         function ($match) use ($routeList) {
                             $existingClasses = preg_replace('/\bcurrent\b/', '', trim($match[2]));
                             $existingClasses = trim(preg_replace('/\s+/', ' ', $existingClasses));
-                            return '<li' . $match[1] . 'class="' . $existingClasses . ' @if (request()->is([\'' . $routeList . '\'])) current @endif"' . $match[3] . '>';
+
+                            return '<li'.$match[1].'class="'.$existingClasses.' @if (request()->is([\''.$routeList.'\'])) current @endif"'.$match[3].'>';
                         },
                         $liHtml
                     );
@@ -622,16 +641,16 @@ BLADE;
                     if ($modifiedLi === $liHtml) {
                         $modifiedLi = preg_replace(
                             '/<li([^>]*)>/i',
-                            '<li @if (request()->is([\'' . $routeList . '\'])) class="current" @endif>',
+                            '<li @if (request()->is([\''.$routeList.'\'])) class="current" @endif>',
                             $liHtml
                         );
                     }
                 }
 
-                $newUl .= "    " . $modifiedLi . PHP_EOL;
+                $newUl .= '    '.$modifiedLi.PHP_EOL;
             } else {
                 // যদি route() না থাকে, li অপরিবর্তিত রাখা
-                $newUl .= "    " . $liHtml . PHP_EOL;
+                $newUl .= '    '.$liHtml.PHP_EOL;
             }
         }
 
@@ -652,7 +671,7 @@ BLADE;
         $destinationPath = resource_path('views/components/head.blade.php');
 
         // সোর্স ফাইল আছে কিনা চেক করি
-        if (!File::exists($sourcePath)) {
+        if (! File::exists($sourcePath)) {
             return false;
         }
 
@@ -660,7 +679,7 @@ BLADE;
         $html = File::get($sourcePath);
 
         // <head> ট্যাগ খুঁজে বের করি
-        if (!preg_match('/<head\b[^>]*>(.*?)<\/head>/is', $html, $matches)) {
+        if (! preg_match('/<head\b[^>]*>(.*?)<\/head>/is', $html, $matches)) {
             return false;
         }
 
@@ -670,17 +689,18 @@ BLADE;
         // <title> ট্যাগ রূপান্তর করি @yield দিয়ে
         $headContent = preg_replace_callback('/<title>(.*?)<\/title>/is', function ($match) {
             $defaultTitle = trim($match[1]);
+
             return "<title>@yield('title', '{$defaultTitle}')</title>";
         }, $headContent);
 
         // @stack('styles') যোগ করি যদি না থাকে
         $additionalStack = "\n    {{-- Additional Styles --}}\n    @stack('styles')\n";
-        if (!str_contains($headContent, '@stack(\'styles\')')) {
+        if (! str_contains($headContent, '@stack(\'styles\')')) {
             $headContent .= $additionalStack;
         }
 
         // <head> ট্যাগ সহ চূড়ান্ত কন্টেন্ট তৈরি করি
-        $finalHead = "<head>\n" . trim($headContent) . "\n</head>\n";
+        $finalHead = "<head>\n".trim($headContent)."\n</head>\n";
 
         // গন্তব্য ফোল্ডার তৈরি করি যদি না থাকে
         File::ensureDirectoryExists(dirname($destinationPath));
@@ -691,6 +711,7 @@ BLADE;
         // সফল হলে true রিটার্ন করি
         return true;
     }
+
     public function extractAndSaveScriptComponent(): bool
     {
         $sourcePath = resource_path('views/htmlToBlade/index.blade.php');
@@ -699,7 +720,7 @@ BLADE;
         $destinationPath = resource_path('views/components/scripts.blade.php');
 
         // ফাইল আছে কিনা যাচাই করি
-        if (!File::exists($sourcePath)) {
+        if (! File::exists($sourcePath)) {
             return false;
         }
 
@@ -707,7 +728,7 @@ BLADE;
         $html = File::get($sourcePath);
 
         // </footer> থেকে </body> এর আগ পর্যন্ত অংশ নেই
-        if (!preg_match('/<\/footer>(.*?)<\/body>/is', $html, $matches)) {
+        if (! preg_match('/<\/footer>(.*?)<\/body>/is', $html, $matches)) {
             return false;
         }
 
@@ -736,11 +757,15 @@ BLADE;
         // সফল হলে true রিটার্ন করি
         return true;
     }
+
     public function make_components()
     {
         $this->extractAndSaveHeadComponent();
         $this->extractAndGenerateMenuList();
         $this->extractAndSaveScriptComponent();
-        return redirect()->back()->with('success', 'Components Created 😊');
+
+        return view('auto::automate.lookUp', [
+            'success' => 'Components Created 😊',
+        ]);
     }
 }

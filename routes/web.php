@@ -1,7 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
-use DevOashim\Automate\src\Controllers\AutomateController;
+use DevOashim\Automate\Controllers\AutomateController;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 

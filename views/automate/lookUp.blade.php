@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +32,7 @@
             }
 
             header {
-                background: linear-gradient(135deg, rgb(192, 185, 70), #f4d03f);
+                background: #f4d03f;
                 color: #333333;
                 padding: 1.5rem 0;
                 text-align: center;
@@ -155,11 +156,13 @@
                 max-width: 55px;
                 /* Set a maximum width */
             }
+
             header p {
                 font-size: 18px;
                 margin: 0;
                 padding: 0 0 20px;
             }
+
             footer {
                 background: #f4d03f;
                 color: #333;
@@ -187,21 +190,23 @@
                 background: #fffde4 !important;
                 color: #333 !important;
                 border-radius: 18px !important;
-                box-shadow: 0 4px 24px rgba(244,208,63,0.15) !important;
+                box-shadow: 0 4px 24px rgba(244, 208, 63, 0.15) !important;
                 font-family: 'Arial', sans-serif;
                 width: 30em !important;
                 max-width: 90vw !important;
                 padding: 2.5em 2.5em 2em 2.5em !important;
                 font-size: 1.35em !important;
             }
+
             .swal2-confirm {
                 background: #f4d03f !important;
                 color: #333 !important;
                 font-weight: bold;
                 border-radius: 8px !important;
-                box-shadow: 0 2px 8px rgba(244,208,63,0.10);
+                box-shadow: 0 2px 8px rgba(244, 208, 63, 0.10);
                 border: none;
             }
+
             .swal2-title {
                 color: #b7950b !important;
                 font-weight: 700;
@@ -220,27 +225,28 @@
             <h1>Laravel Automation Steps</h1>
             <p>Follow the steps below to automate your Laravel project.Click the buttons to perform the actions.</p>
         </header>
-        @if (session('success'))
+        @if (isset($success))
             <script>
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    text: "{{ session('success') }}",
+                    text: "{{ $success }}",
                     background: '#fffde4',
                     color: '#333',
                     confirmButtonColor: '#f4d03f',
                 });
             </script>
         @endif
-        @if (session('error'))
+
+        @if (isset($error))
             <script>
                 Swal.fire({
                     icon: 'error',
-                    title: 'Waning',
-                    text: "{{ session('error') }}",
-                    background: 'red',
+                    title: 'Warning',
+                    text: "{{ $error }}",
+                    background: '#ffe6e6',
                     color: '#333',
-                    confirmButtonColor: '#f4d03f',
+                    confirmButtonColor: '#e74c3c',
                 });
             </script>
         @endif
@@ -299,7 +305,7 @@
                                 <p>Click the button below to generate routes and controller methods automatically.</p>
                                 <a href="{{ route('bladeToRouteAuto') }}" class="btn btn-success"
                                     style="display: block; margin: 0 auto;"><i class="fa-brands fa-golang"></i></a>
-                                    <hr>
+                                <hr>
                                 <p>Or click the button below to generate routes and controller methods manually.</p>
                                 <a target="_blank" href="{{ route('bladeToRoute') }}" class="btn btn-success"
                                     style="display: block; margin: 0 auto;"><i class="fa-brands fa-golang"></i></a>
@@ -316,8 +322,7 @@
                                 </a>
                             </h4>
                         </div>
-                        <div id="collapse4" class="panel-collapse collapse" role="tabpanel"
-                            aria-labelledby="heading4">
+                        <div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">
                             <div class="panel-body" style="text-align: center;">
                                 <p>Click the button below to generate views.</p>
                                 <a href="{{ route('make-views') }}" class="btn btn-success"
@@ -330,7 +335,8 @@
         </div>
         <footer>
             <p>Note: This is a demo version. Please use it responsibly.</p>
-            <p>For any issues, please contact <a target="_blank" href="https://facebook.com/DevOashim">Washim Akram</a></p>
+            <p>For any issues, please contact <a target="_blank" href="https://facebook.com/DevOashim">Washim
+                    Akram</a></p>
             <p>Thank you for using Laravel Automation.</p>
         </footer>
 

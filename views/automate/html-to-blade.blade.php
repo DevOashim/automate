@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>UPLOAD HTML FILES</title>
@@ -121,11 +121,11 @@
 
         <!-- SweetAlert2 Notification -->
         <script>
-            @if (Session::has('type'))
+            @if (isset($success))
                 Swal.fire({
-                    icon: '{{ Session::get('type') === 'success' ? 'success' : 'error' }}',
-                    title: '{{ ucfirst(Session::get('type')) }}',
-                    text: "{{ Session::get('msg') }}",
+                    icon: 'success',
+                    title: 'Success',
+                    text: "{{ $success }}",
                     background: '#fffde4',
                     color: '#333',
                     confirmButtonColor: '#f4d03f',
