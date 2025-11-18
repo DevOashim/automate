@@ -18,9 +18,10 @@ Click the buttons to run Laravel commands automatically!
 
 ## Requirements
 
-- PHP ^8.0
-- Laravel ^9.0|^10.0|^11.0
+- PHP ^8.2
+- Laravel ^10.0
 
 ## License
+
 
 MIT
