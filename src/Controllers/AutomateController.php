@@ -182,7 +182,7 @@ class AutomateController extends Controller
 
         $useStatements = array_unique(array_map(fn($ctrl) => "use App\\Http\\Controllers\\$ctrl;", array_unique($usedControllers)));
 
-        return view('auto::uploadBlade', [
+        return view('auto::automate.uploadBlade', [
             'routeDefinitions' => $routeDefinitions,
             'useStatements' => $useStatements,
             'methodSnippets' => $methodSnippets,

@@ -6,9 +6,9 @@ use DevOashim\Automate\src\Controllers\AutomateController;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 
-Route::view('/auto', 'automate::lookUp')->name('auto');
-Route::view('/html-to-blade', 'automate::html-to-blade')->name('htmlToBlade');
-Route::view('/upload-blade', 'automate::uploadBlade')->name('bladeToRoute');
+Route::view('/auto', 'auto::automate.lookUp')->name('auto');
+Route::view('/html-to-blade', 'auto::automate.html-to-blade')->name('htmlToBlade');
+Route::view('/upload-blade', 'auto::automate.uploadBlade')->name('bladeToRoute');
 
 Route::get('/auto-blade-to-route', [AutomateController::class, 'bladeToRouteAuto'])
     ->name('bladeToRouteAuto');

@@ -16,17 +16,14 @@ class AutomateServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Routes load
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
-        
-        // Views load
-        $this->loadViewsFrom(__DIR__.'/../views', 'automate');
-        
+        $this->loadViewsFrom(__DIR__.'/../views', 'auto');
+
         // Publish config
         $this->publishes([
             __DIR__.'/../config/automate.php' => config_path('automate.php'),
         ], 'automate-config');
-        
+
         // Publish views
         $this->publishes([
             __DIR__.'/../views' => resource_path('views/vendor/automate'),
