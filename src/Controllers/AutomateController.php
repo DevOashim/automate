@@ -9,8 +9,6 @@ use Illuminate\Support\Str;
 
 class AutomateController extends Controller
 {
-    public $page_header_title = 'h2';
-
     public $allowCurrent = false;
 
     public function htmlToBlade(Request $request)
@@ -191,10 +189,10 @@ class AutomateController extends Controller
 
     public function bladeToRouteAuto()
     {
-        $path = resource_path('views/components/menuList.blade.php');
+        $path = resource_path('views/components/menu-list.blade.php');
 
         if (! File::exists($path)) {
-            return view('auto::automate.lookUp', ['error' => 'menuList.blade.php not found!']);
+            return view('auto::automate.lookUp', ['error' => 'menu-list.blade.php not found!']);
         }
 
         $content = File::get($path);
@@ -203,7 +201,7 @@ class AutomateController extends Controller
         $uniqueRoutes = array_values(array_unique($matches[1]));
 
         if (empty($uniqueRoutes)) {
-            return view('auto::automate.lookUp', ['error' => 'No routes found in menuList.blade.php!']);
+            return view('auto::automate.lookUp', ['error' => 'No routes found in menu-list.blade.php!']);
         }
 
         $webRoutes = base_path('routes/web.php');
@@ -247,8 +245,7 @@ class AutomateController extends Controller
                 );
             }
 
-
-            //index route url only '/' 
+            // index route url only '/'
             $routeUrl = $route === 'index' ? '' : $route;
 
             // Add route definition if missing
@@ -413,15 +410,19 @@ PHP;
                     if (str_starts_with($viewPath, 'pages.')) {
                         if (preg_match('/<section[^>]*class="[^"]*page-header[^"]*"[^>]*>(.*?)<\/section>/si', $htmlContent, $sectionMatch)) {
                             $headerSection = $sectionMatch[1];
-                            $pattern = '/<'.$this->page_header_title.'[^>]*>(.*?)<\/'.$this->page_header_title.'>/si';
+                            $pattern = '/<(h[1-6])[^>]*>(.*?)<\/\1>/si';
                             preg_match($pattern, $headerSection, $h2Match);
-                            $headerTitle = trim(strip_tags($h2Match[1] ?? ''));
+                            $headerTitle = trim(strip_tags($h2Match[2] ?? ''));
                             preg_match_all('/<li[^>]*>(.*?)<\/li>/si', $headerSection, $liMatches);
                             $headerSubtitle = trim(strip_tags(end($liMatches[1]) ?? ''));
 
                             $startPos = strpos($htmlContent, $sectionMatch[0]) + strlen($sectionMatch[0]);
+
+
                             if (preg_match('/<section[^>]*class="[^"]*newsletter[^"]*"[^>]*>/si', $htmlContent, $newsletterMatch, PREG_OFFSET_CAPTURE, $startPos)) {
                                 $endPos = $newsletterMatch[0][1];
+                            } elseif (preg_match('/<footer[^>]*>/si', $htmlContent, $footerMatch, PREG_OFFSET_CAPTURE, $startPos)) {
+                                $endPos = $footerMatch[0][1];
                             } else {
                                 $endPos = strlen($htmlContent);
                             }
@@ -542,7 +543,7 @@ BLADE;
     public function extractAndGenerateMenuList(): bool
     {
         $inputPath = resource_path('views/htmlToBlade/index.blade.php');
-        $outputPath = resource_path('views/components/menuList.blade.php');
+        $outputPath = resource_path('views/components/menu-list.blade.php');
 
         // Create components directory if it doesn't exist
         $componentsDir = dirname($outputPath);
@@ -758,11 +759,86 @@ BLADE;
         return true;
     }
 
+    public function extractAndSavePageHeaderComponent()
+    {
+        $sourcePath1 = resource_path('views/htmlToBlade/about.blade.php');
+        $sourcePath2 = resource_path('views/htmlToBlade/contact.blade.php');
+        $destinationPath = resource_path('views/components/page-header.blade.php');
+
+        // Check if first source file exists
+        if (file_exists($sourcePath1)) {
+            $content = file_get_contents($sourcePath1);
+
+            // Search for section with class "page-header"
+            if (preg_match('/<section[^>]*class="[^"]*page-header[^"]*"[^>]*>.*?<\/section>/s', $content, $matches)) {
+                $sectionContent = $matches[0];
+
+                // Replace first h1-h6 tag content with blade variable
+                $sectionContent = preg_replace(
+                    '/(<h[1-6][^>]*>)(.*?)(<\/h[1-6]>)/s',
+                    '$1{{ $title ?? \'Welcome\' }}$3',
+                    $sectionContent,
+                    1 // Only replace first occurrence
+                );
+
+                // Find the last <li> tag and replace its content with blade variable
+                $sectionContent = preg_replace_callback(
+                    '/(<li[^>]*>)(?!.*<li)([^<]*?)(<\/li>)/s',
+                    function ($matches) {
+                        return $matches[1].'{{ $subtitle ?? \'Go to home\' }}'.$matches[3];
+                    },
+                    $sectionContent
+                );
+
+                // Save to destination file
+                file_put_contents($destinationPath, $sectionContent);
+
+                return true;
+            }
+        }
+
+        // If not found in first file, check second source file
+        if (file_exists($sourcePath2)) {
+            $content = file_get_contents($sourcePath2);
+
+            // Search for section with class "page-header"
+            if (preg_match('/<section[^>]*class="[^"]*page-header[^"]*"[^>]*>.*?<\/section>/s', $content, $matches)) {
+                $sectionContent = $matches[0];
+
+                // Replace first h1-h6 tag content with blade variable
+                $sectionContent = preg_replace(
+                    '/(<h[1-6][^>]*>)(.*?)(<\/h[1-6]>)/s',
+                    '$1{{ $title ?? \'Welcome\' }}$3',
+                    $sectionContent,
+                    1 // Only replace first occurrence
+                );
+
+                // Find the last <li> tag and replace its content with blade variable
+                $sectionContent = preg_replace_callback(
+                    '/(<li[^>]*>)(?!.*<li)([^<]*?)(<\/li>)/s',
+                    function ($matches) {
+                        return $matches[1].'{{ $subtitle ?? \'Go to home\' }}'.$matches[3];
+                    },
+                    $sectionContent
+                );
+
+                // Save to destination file
+                file_put_contents($destinationPath, $sectionContent);
+
+                return true;
+            }
+        }
+
+        // Return false if section not found in either file
+        return false;
+    }
+
     public function make_components()
     {
         $this->extractAndSaveHeadComponent();
         $this->extractAndGenerateMenuList();
         $this->extractAndSaveScriptComponent();
+        $this->extractAndSavePageHeaderComponent();
 
         return view('auto::automate.lookUp', [
             'success' => 'Components Created 😊',
